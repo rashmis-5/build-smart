@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -34,14 +35,21 @@ public class BudgetServiceImpl implements BudgetService {
         if (budgetRepository.existsByProjectProjectIdAndCategory(request.projectId(), request.category())) {
             throw new DuplicateResourceException("Budget category already exists for this project: " + request.category());
         }
+
+
+        BigDecimal actualAmount =
+                request.actualAmount() != null
+                        ? request.actualAmount()
+                        :BigDecimal.ZERO;
+
         Budget last = budgetRepository.findTopByOrderByBudgetIdDesc();
         Budget budget = new Budget();
         budget.setBudgetId(IdGeneratorUtil.nextBudgetId(last == null ? null : last.getBudgetId()));
         budget.setProject(project);
         budget.setCategory(request.category());
         budget.setPlannedAmount(request.plannedAmount());
-        budget.setActualAmount(request.actualAmount());
-        budget.setVariance(request.actualAmount().subtract(request.plannedAmount()));
+        budget.setActualAmount(actualAmount);
+        budget.setVariance(actualAmount.subtract(request.plannedAmount()));
         return toResponse(budgetRepository.save(budget));
     }
 

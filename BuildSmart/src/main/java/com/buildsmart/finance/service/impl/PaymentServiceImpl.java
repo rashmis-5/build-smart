@@ -1,5 +1,7 @@
 package com.buildsmart.finance.service.impl;
 
+import com.buildsmart.common.enums.PaymentStatus;
+import com.buildsmart.common.exception.DuplicateResourceException;
 import com.buildsmart.common.util.IdGeneratorUtil;
 import com.buildsmart.finance.dto.PaymentRequest;
 import com.buildsmart.finance.dto.PaymentResponse;
@@ -22,6 +24,16 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse createPayment(PaymentRequest request) {
         paymentValidator.validate(request);
+
+        if (request.status() == PaymentStatus.SUCCESS &&
+                paymentRepository.existsByInvoiceIdAndStatus(
+                        request.invoiceId(), PaymentStatus.SUCCESS)) {
+
+            throw new DuplicateResourceException(
+                    "Payment already completed for invoice: " + request.invoiceId()
+            );
+        }
+
         Payment last = paymentRepository.findTopByOrderByPaymentIdDesc();
         Payment payment = new Payment();
         payment.setPaymentId(IdGeneratorUtil.nextPaymentId(last == null ? null : last.getPaymentId()));

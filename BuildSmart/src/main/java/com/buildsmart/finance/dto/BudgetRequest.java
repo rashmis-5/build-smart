@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 public record BudgetRequest(
         @NotBlank String projectId,
         @NotNull BudgetCategory category,
-        @NotNull @DecimalMin(value = "0.00", inclusive = true) BigDecimal plannedAmount,
-        @NotNull @DecimalMin(value = "0.00", inclusive = true) BigDecimal actualAmount
-) {
-}
+        @NotNull @DecimalMin(value = "0.01", inclusive = true) BigDecimal plannedAmount,
+        @DecimalMin(value = "0.00", inclusive = true) BigDecimal actualAmount
+) {}

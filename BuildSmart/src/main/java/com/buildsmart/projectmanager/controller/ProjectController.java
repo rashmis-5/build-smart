@@ -33,7 +33,6 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
     }
-
     @GetMapping("/{projectId}")
     @Operation(summary = "Get project by ID")
     @ApiResponse(responseCode = "200", description = "Project fetched")

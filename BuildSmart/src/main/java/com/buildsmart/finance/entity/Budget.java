@@ -31,7 +31,13 @@ public class Budget {
     private BigDecimal plannedAmount;
 
     @Column(nullable = false, precision = 18, scale = 2)
-    private BigDecimal actualAmount;
+    private BigDecimal actualAmount = BigDecimal.ZERO;
+
+    public void setActualAmount(BigDecimal actualAmount) {
+        this.actualAmount =
+                actualAmount != null ? actualAmount : BigDecimal.ZERO;
+    }
+
 
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal variance;

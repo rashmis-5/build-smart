@@ -44,7 +44,17 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getExpensesByProjectId(String projectId) {
-        return expenseRepository.findByProjectProjectId(projectId).stream().map(this::toResponse).toList();
+
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException(
+                    "Project not found: " + projectId
+            );
+        }
+
+        return expenseRepository.findByProjectProjectId(projectId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     private ExpenseResponse toResponse(Expense expense) {
