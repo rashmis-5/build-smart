@@ -2,6 +2,7 @@ package com.buildsmart.finance.service.impl;
 
 import com.buildsmart.common.exception.DuplicateResourceException;
 import com.buildsmart.common.exception.ResourceNotFoundException;
+import com.buildsmart.common.loggers.ApplicationLogger;
 import com.buildsmart.common.util.IdGeneratorUtil;
 import com.buildsmart.finance.dto.BudgetRequest;
 import com.buildsmart.finance.dto.BudgetResponse;
@@ -29,6 +30,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public BudgetResponse createBudget(BudgetRequest request) {
+        ApplicationLogger.log.info("Creating the budget");
         budgetValidator.validate(request);
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + request.projectId()));
@@ -68,5 +70,39 @@ public class BudgetServiceImpl implements BudgetService {
                 budget.getActualAmount(),
                 budget.getVariance()
         );
+    }
+
+    @Override
+    @Transactional
+    public BudgetResponse updateBudget(String budgetId, BudgetRequest request) {
+        ApplicationLogger.log.info("Updating the budget");
+
+        budgetValidator.validate(request);
+
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found: " + budgetId));
+
+        BigDecimal actualAmount =
+                request.actualAmount() != null
+                        ? request.actualAmount()
+                        : BigDecimal.ZERO;
+
+        budget.setCategory(request.category());
+        budget.setPlannedAmount(request.plannedAmount());
+        budget.setActualAmount(actualAmount);
+        budget.setVariance(actualAmount.subtract(request.plannedAmount()));
+
+        return toResponse(budgetRepository.save(budget));
+    }
+
+    @Override
+    @Transactional
+    public void deleteBudget(String budgetId) {
+        ApplicationLogger.log.info("Deleting the budget");
+
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found: " + budgetId));
+
+        budgetRepository.delete(budget);
     }
 }

@@ -16,14 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    // Optional: allow overriding via properties
     @Value("${app.docs.server.dev:http://localhost:8082}")
     private String devServer;
 
     @Value("${app.docs.server.prod:https://api.buildsmart.com}")
     private String prodServer;
 
-    /** Single, authoritative OpenAPI bean (applies to all groups). */
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
@@ -31,7 +29,7 @@ public class OpenApiConfig {
                         .title("BuildSmart API")
                         .description("""
                                 APIs for BuildSmart Construction Project Planning & Site Operations Management System.
-                                Modules: IAM, Project Management, Finance, Notifications.
+                                Modules: IAM, Project Management, Finance, Safety, Notifications.
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()
@@ -52,10 +50,8 @@ public class OpenApiConfig {
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 
-    /** Groups (adjust paths to match your controllers). */
     @Bean
     public GroupedOpenApi iamApis() {
-        // If your IAM endpoints are actually under /api/v1/auth/**
         return GroupedOpenApi.builder()
                 .group("IAM")
                 .pathsToMatch("/admin/**", "/users/**", "/api/auth/**")
@@ -64,8 +60,6 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi projectManagerApis() {
-        // Your sample path looked like /api/v1/api/project-manager/...
-        // Suggest normalizing to /api/v1/project-manager/** in controllers & security
         return GroupedOpenApi.builder()
                 .group("Project Manager")
                 .pathsToMatch("/api/project-manager/**")
@@ -81,10 +75,26 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public GroupedOpenApi safetyApis() {
+        return GroupedOpenApi.builder()
+                .group("Safety")
+                .pathsToMatch("/api/v1/safety/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi notificationApis() {
         return GroupedOpenApi.builder()
                 .group("Notifications")
                 .pathsToMatch("/api/notifications/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi vendorApis() {
+        return GroupedOpenApi.builder()
+                .group("Vendor")
+                .pathsToMatch("/api/vendors/**", "/api/vendor/invoices/**", "/api/contracts/**", "/api/deliveries/**")
                 .build();
     }
 }

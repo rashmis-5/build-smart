@@ -67,4 +67,32 @@ public class ExpenseServiceImpl implements ExpenseService {
                 expense.getStatus()
         );
     }
+
+    @Override
+    @Transactional
+    public ExpenseResponse updateExpense(String expenseId, ExpenseRequest request) {
+        expenseValidator.validate(request);
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Expense not found: " + expenseId));
+
+        expense.setDescription(request.description());
+        expense.setDate(request.date());
+        expense.setApprovedBy(request.approvedBy());
+        expense.setStatus(request.status());
+
+        return toResponse(expenseRepository.save(expense));
+    }
+
+    @Override
+    @Transactional
+    public void deleteExpense(String expenseId) {
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Expense not found: " + expenseId));
+
+        expenseRepository.delete(expense);
+    }
 }

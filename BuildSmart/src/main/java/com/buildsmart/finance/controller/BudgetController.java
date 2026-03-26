@@ -37,4 +37,21 @@ public class BudgetController {
     public ResponseEntity<List<BudgetResponse>> getBudgetsByProjectId(@PathVariable String projectId) {
         return ResponseEntity.ok(budgetService.getBudgetsByProjectId(projectId));
     }
+
+    @PutMapping("/{budgetId}")
+    @Operation(summary = "Update budget")
+    @ApiResponse(responseCode = "200", description = "Budget updated")
+    public ResponseEntity<BudgetResponse> updateBudget(
+            @PathVariable String budgetId,
+            @Valid @RequestBody BudgetRequest request) {
+        return ResponseEntity.ok(budgetService.updateBudget(budgetId, request));
+    }
+
+    @DeleteMapping("/{budgetId}")
+    @Operation(summary = "Delete budget")
+    @ApiResponse(responseCode = "204", description = "Budget deleted")
+    public ResponseEntity<Void> deleteBudget(@PathVariable String budgetId) {
+        budgetService.deleteBudget(budgetId);
+        return ResponseEntity.noContent().build();
+    }
 }

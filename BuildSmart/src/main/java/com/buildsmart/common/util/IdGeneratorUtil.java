@@ -45,6 +45,16 @@ public final class IdGeneratorUtil {
         return String.format("NOTBS%03d", next);
     }
 
+    public static String nextIncidentId(String lastIncidentId) {
+        int next = extractNumericSuffix(lastIncidentId, 3) + 1;
+        return String.format("INCBS%03d", next);
+    }
+
+    public static String nextInspectionId(String lastInspectionId) {
+        int next = extractNumericSuffix(lastInspectionId, 3) + 1;
+        return String.format("INSBS%03d", next);
+    }
+
     private static int extractNumericSuffix(String id, int digits) {
         if (id == null || id.length() < digits) {
             return 0;
@@ -55,5 +65,26 @@ public final class IdGeneratorUtil {
         } catch (NumberFormatException ex) {
             return 0;
         }
+    }
+
+    public static String nextVendorId(String lastVendorId) {
+        int next = extractNumericSuffix(lastVendorId, 3) + 1;
+        return String.format("VENBS%03d", next);
+    }
+
+    public static String nextContractId(String lastContractId) {
+        int next = extractNumericSuffix(lastContractId, 3) + 1;
+        return String.format("CONBS%03d", next);
+    }
+
+    public static String nextDeliveryId(String lastDeliveryId) {
+        int next = extractNumericSuffix(lastDeliveryId, 3) + 1;
+        return String.format("DELBS%03d", next);
+    }
+
+    public static String nextInvoiceId(String lastInvoiceId) {
+        int next = extractNumericSuffix(lastInvoiceId, 3) + 1;
+        return String.format("INVBS%03d", next);
+
     }
 }

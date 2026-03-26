@@ -37,4 +37,21 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseResponse>> getExpensesByProjectId(@PathVariable String projectId) {
         return ResponseEntity.ok(expenseService.getExpensesByProjectId(projectId));
     }
+
+    @PutMapping("/{expenseId}")
+    @Operation(summary = "Update expense")
+    @ApiResponse(responseCode = "200", description = "Expense updated")
+    public ResponseEntity<ExpenseResponse> updateExpense(
+            @PathVariable String expenseId,
+            @Valid @RequestBody ExpenseRequest request) {
+        return ResponseEntity.ok(expenseService.updateExpense(expenseId, request));
+    }
+
+    @DeleteMapping("/{expenseId}")
+    @Operation(summary = "Delete expense")
+    @ApiResponse(responseCode = "204", description = "Expense deleted")
+    public ResponseEntity<Void> deleteExpense(@PathVariable String expenseId) {
+        expenseService.deleteExpense(expenseId);
+        return ResponseEntity.noContent().build();
+    }
 }
