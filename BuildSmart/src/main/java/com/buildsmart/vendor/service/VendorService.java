@@ -9,5 +9,17 @@ public interface VendorService {
 
     VendorResponse createVendor(VendorRequest request);
 
-    List<VendorResponse> getVendorsByStatus(String status);
+    List<VendorResponse> getAllVendors();
+    VendorResponse getVendorById(String vendorId);
+
+    List<VendorResponse> deleteVendorsById(String vendorId);
+
+
+    VendorResponse updateVendor(String vendorId, VendorRequest request);
+
+    VendorResponse updateVendorStatus(String vendorId, String status);
+
+
+
+
 }

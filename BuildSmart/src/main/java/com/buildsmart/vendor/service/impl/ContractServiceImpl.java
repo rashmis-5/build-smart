@@ -64,6 +64,73 @@ public class ContractServiceImpl implements ContractService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContractResponse> getAllContracts() {
+        ApplicationLogger.log.info("Fetching all contracts");
+
+        return contractRepository
+                .findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public ContractResponse updateContract(String contractId, ContractRequest request) {
+        ApplicationLogger.log.info("Updating contract with id: {}", contractId);
+
+        Contract contract = contractRepository.findByContractId(contractId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Contract not found: " + contractId));
+
+        Vendor vendor = vendorRepository.findById(request.vendorId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendor not found: " + request.vendorId()));
+
+        Project project = projectRepository.findById(request.projectId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Project not found: " + request.projectId()));
+
+        contract.setVendor(vendor);
+        contract.setProject(project);
+        contract.setStartDate(request.startDate());
+        contract.setEndDate(request.endDate());
+        contract.setValue(request.value());
+        // status preserved unless explicitly changed later
+
+        return toResponse(contractRepository.save(contract));
+    }
+
+    @Override
+    @Transactional
+    public ContractResponse updateContractStatus(String contractId, String status) {
+        ApplicationLogger.log.info("Updating contract status: {} -> {}", contractId, status);
+
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Contract not found: " + contractId));
+
+        contract.setStatus(status);
+        return toResponse(contractRepository.save(contract));
+    }
+
+    @Override
+    @Transactional
+    public ContractResponse deleteContract(String contractId) {
+        ApplicationLogger.log.info("Deleting contract with id: {}", contractId);
+
+        Contract contract = contractRepository.findByContractId(contractId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Contract not found: " + contractId));
+
+        contractRepository.delete(contract);
+
+        return toResponse(contract);
+    }
+
+
     private ContractResponse toResponse(Contract contract) {
         return ContractResponse.of(
                 contract.getContractId(),

@@ -29,4 +29,8 @@ public class Invoice {
 
     @Column(nullable = false, length = 30)
     private String status;
+
+    public enum InvoiceStatus {
+        DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, PAID, CANCELLED
+    }
 }

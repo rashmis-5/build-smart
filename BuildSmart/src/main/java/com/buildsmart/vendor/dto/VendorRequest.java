@@ -7,5 +7,6 @@ public record VendorRequest(
         @NotBlank String name,
         @NotBlank String contactInfo,
         @NotNull String status
+
 ) {
 }

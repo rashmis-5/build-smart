@@ -29,9 +29,18 @@ public class ContractController {
     @ApiResponse(responseCode = "201", description = "Contract created")
     public ResponseEntity<ContractResponse> createContract(
             @Valid @RequestBody ContractRequest request) {
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(contractService.createContract(request));
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all contracts")
+    @ApiResponse(responseCode = "200", description = "Contracts fetched")
+    public ResponseEntity<List<ContractResponse>> getAllContracts() {
+
+        return ResponseEntity.ok(contractService.getAllContracts());
     }
 
     @GetMapping("/project/{projectId}")
@@ -39,6 +48,38 @@ public class ContractController {
     @ApiResponse(responseCode = "200", description = "Contracts fetched")
     public ResponseEntity<List<ContractResponse>> getContractsByProjectId(
             @PathVariable String projectId) {
-        return ResponseEntity.ok(contractService.getContractsByProjectProjectId(projectId));
+
+        return ResponseEntity.ok(
+                contractService.getContractsByProjectProjectId(projectId));
+    }
+
+    @PutMapping("/{contractId}")
+    @Operation(summary = "Update contract")
+    @ApiResponse(responseCode = "200", description = "Contract updated")
+    public ResponseEntity<ContractResponse> updateContract(
+            @PathVariable String contractId,
+            @Valid @RequestBody ContractRequest request) {
+
+        return ResponseEntity.ok(
+                contractService.updateContract(contractId, request));
+    }
+
+    @PatchMapping("/{contractId}/status")
+    @Operation(summary = "Update contract status")
+    @ApiResponse(responseCode = "200", description = "Contract status updated")
+    public ResponseEntity<ContractResponse> updateContractStatus(
+            @PathVariable String contractId,
+            @RequestParam String status) {
+        return ResponseEntity.ok(contractService.updateContractStatus(contractId, status));
+    }
+
+    @DeleteMapping("/{contractId}")
+    @Operation(summary = "Delete contract")
+    @ApiResponse(responseCode = "200", description = "Contract deleted")
+    public ResponseEntity<ContractResponse> deleteContract(
+            @PathVariable String contractId) {
+
+        return ResponseEntity.ok(
+                contractService.deleteContract(contractId));
     }
 }

@@ -55,7 +55,7 @@ public final class IdGeneratorUtil {
         return String.format("INSBS%03d", next);
     }
 
-    private static int extractNumericSuffix(String id, int digits) {
+    public static int extractNumericSuffix(String id, int digits) {
         if (id == null || id.length() < digits) {
             return 0;
         }

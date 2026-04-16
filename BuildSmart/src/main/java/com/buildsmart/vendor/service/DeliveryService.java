@@ -9,5 +9,14 @@ public interface DeliveryService {
 
     DeliveryResponse createDelivery(DeliveryRequest request);
 
+    List<DeliveryResponse> getAllDeliveries();
+
     List<DeliveryResponse> getDeliveriesByContractId(String contractId);
+
+    DeliveryResponse updateDelivery(String deliveryId, DeliveryRequest request);
+
+    void deleteDelivery(String deliveryId);
+
+    DeliveryResponse updateDeliveryStatus(String deliveryId, String status);
+
 }

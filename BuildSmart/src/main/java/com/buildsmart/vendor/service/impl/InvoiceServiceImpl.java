@@ -23,20 +23,22 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ContractRepository contractRepository;
 
-    @Override
     @Transactional
+    @Override
     public InvoiceResponse createInvoice(InvoiceRequest request) {
         ApplicationLogger.log.info("Creating invoice");
 
         Contract contract = contractRepository.findById(request.contractId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Contract not found: " + request.contractId()));
+                        new ResourceNotFoundException(
+                                "Contract not found: " + request.contractId()));
 
         Invoice last = invoiceRepository.findTopByOrderByInvoiceIdDesc();
 
         Invoice invoice = new Invoice();
         invoice.setInvoiceId(
-                IdGeneratorUtil.nextInvoiceId(last == null ? null : last.getInvoiceId()));
+                IdGeneratorUtil.nextInvoiceId(
+                        last == null ? null : last.getInvoiceId()));
         invoice.setContract(contract);
         invoice.setAmount(request.amount());
         invoice.setDate(request.date());
@@ -47,12 +49,75 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<InvoiceResponse> getAllInvoices() {
+        ApplicationLogger.log.info("Fetching all invoices");
+
+        return invoiceRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<InvoiceResponse> getInvoicesByContractId(String contractId) {
         return invoiceRepository
                 .findByContractContractId(contractId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public InvoiceResponse updateInvoice(
+            String invoiceId,
+            InvoiceRequest request) {
+
+        ApplicationLogger.log.info("Updating invoice {}", invoiceId);
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Invoice not found: " + invoiceId));
+
+        Contract contract = contractRepository.findById(request.contractId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Contract not found: " + request.contractId()));
+
+        invoice.setContract(contract);
+        invoice.setAmount(request.amount());
+        invoice.setDate(request.date());
+        // status left unchanged intentionally; modify if needed
+
+        return toResponse(invoiceRepository.save(invoice));
+    }
+
+    @Override
+    @Transactional
+    public InvoiceResponse updateInvoiceStatus(String invoiceId, String status) {
+        ApplicationLogger.log.info("Updating invoice status: {} -> {}", invoiceId, status);
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Invoice not found: " + invoiceId));
+
+        invoice.setStatus(status);
+        return toResponse(invoiceRepository.save(invoice));
+    }
+
+    @Override
+    @Transactional
+    public void deleteInvoice(String invoiceId) {
+        ApplicationLogger.log.info("Deleting invoice {}", invoiceId);
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Invoice not found: " + invoiceId));
+
+        invoiceRepository.delete(invoice);
     }
 
     private InvoiceResponse toResponse(Invoice invoice) {

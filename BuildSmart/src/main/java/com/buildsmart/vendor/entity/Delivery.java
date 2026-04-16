@@ -31,4 +31,8 @@ public class Delivery {
 
     @Column(nullable = false, length = 30)
     private String status;
+
+    public enum DeliveryStatus {
+        PENDING, IN_TRANSIT, DELIVERED, PARTIALLY_DELIVERED, REJECTED, VERIFIED
+    }
 }

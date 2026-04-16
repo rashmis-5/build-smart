@@ -37,4 +37,10 @@ public class Contract {
 
     @Column(nullable = false, length = 30)
     private String status;
+
+    public enum ContractStatus {
+        DRAFT, ACTIVE, COMPLETED, TERMINATED, EXPIRED, PENDING_APPROVAL
+    }
+
+
 }

@@ -22,4 +22,10 @@ public class Vendor {
 
     @Column(nullable = false, length = 30)
     private String status;
+
+    public enum VendorStatus {
+        ACTIVE, INACTIVE, BLACKLISTED, PENDING_APPROVAL
+    }
+
+
 }

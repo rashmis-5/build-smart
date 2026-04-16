@@ -4,6 +4,7 @@ import com.buildsmart.vendor.entity.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ContractRepository extends JpaRepository<Contract, String> {
 
@@ -14,4 +15,8 @@ public interface ContractRepository extends JpaRepository<Contract, String> {
     List<Contract> findByProjectProjectId(String projectId);
 
     List<Contract> findByStatus(String status);
+
+
+    Optional<Contract> findByContractId(String contractId);
+
 }

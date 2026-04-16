@@ -1,6 +1,7 @@
 package com.buildsmart.vendor.service.impl;
 
 import com.buildsmart.common.exception.DuplicateResourceException;
+import com.buildsmart.common.exception.ResourceNotFoundException;
 import com.buildsmart.common.loggers.ApplicationLogger;
 import com.buildsmart.common.util.IdGeneratorUtil;
 import com.buildsmart.vendor.entity.Vendor;
@@ -41,15 +42,82 @@ public class VendorServiceImpl implements VendorService {
         return toResponse(vendorRepository.save(vendor));
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public List<VendorResponse> getVendorsByStatus(String status) {
+    public List<VendorResponse> getAllVendors() {
+        ApplicationLogger.log.info("Fetching all vendors");
+
         return vendorRepository
-                .findByStatus(status)
+                .findAll()
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public VendorResponse getVendorById(String vendorId) {
+        ApplicationLogger.log.info("Fetching vendor with id: {}", vendorId);
+
+        Vendor vendor = vendorRepository
+                .findByVendorId(vendorId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Vendor not found with id: " + vendorId));
+
+        return toResponse(vendor);
+    }
+
+    @Override
+    @Transactional
+    public List<VendorResponse> deleteVendorsById(String vendorId) {
+        ApplicationLogger.log.info("Deleting vendor with id: {}", vendorId);
+
+        Vendor vendor = vendorRepository
+                .findByVendorId(vendorId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Vendor not found with id: " + vendorId));
+
+        vendorRepository.delete(vendor);
+
+        return List.of(toResponse(vendor));
+    }
+
+
+    @Override
+    @Transactional
+    public VendorResponse updateVendor(String vendorId, VendorRequest request) {
+        ApplicationLogger.log.info("Updating vendor with id: {}", vendorId);
+
+        Vendor vendor = vendorRepository
+                .findByVendorId(vendorId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Vendor not found with id: " + vendorId));
+
+        vendor.setName(request.name());
+        vendor.setContactInfo(request.contactInfo());
+        vendor.setStatus(request.status());
+
+
+        return toResponse(vendorRepository.save(vendor));
+    }
+
+    @Override
+    @Transactional
+    public VendorResponse updateVendorStatus(String vendorId, String status) {
+        ApplicationLogger.log.info("Updating vendor status: {} -> {}", vendorId, status);
+
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendor not found: " + vendorId));
+
+        vendor.setStatus(status);
+        return toResponse(vendorRepository.save(vendor));
+    }
+
+
+
+
 
     private VendorResponse toResponse(Vendor vendor) {
         return VendorResponse.of(

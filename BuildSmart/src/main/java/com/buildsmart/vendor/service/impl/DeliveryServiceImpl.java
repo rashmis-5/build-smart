@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
@@ -30,13 +31,15 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         Contract contract = contractRepository.findById(request.contractId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Contract not found: " + request.contractId()));
+                        new ResourceNotFoundException(
+                                "Contract not found: " + request.contractId()));
 
         Delivery last = deliveryRepository.findTopByOrderByDeliveryIdDesc();
 
         Delivery delivery = new Delivery();
         delivery.setDeliveryId(
-                IdGeneratorUtil.nextDeliveryId(last == null ? null : last.getDeliveryId()));
+                IdGeneratorUtil.nextDeliveryId(
+                        last == null ? null : last.getDeliveryId()));
         delivery.setContract(contract);
         delivery.setDate(request.date());
         delivery.setItem(request.item());
@@ -48,12 +51,78 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<DeliveryResponse> getAllDeliveries() {
+        ApplicationLogger.log.info("Fetching all deliveries");
+
+        return deliveryRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<DeliveryResponse> getDeliveriesByContractId(String contractId) {
+
         return deliveryRepository
                 .findByContractContractId(contractId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public DeliveryResponse updateDelivery(
+            String deliveryId,
+            DeliveryRequest request) {
+
+        ApplicationLogger.log.info("Updating delivery {}", deliveryId);
+
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Delivery not found: " + deliveryId));
+
+        Contract contract = contractRepository.findById(request.contractId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Contract not found: " + request.contractId()));
+
+        delivery.setContract(contract);
+        delivery.setDate(request.date());
+        delivery.setItem(request.item());
+        delivery.setQuantity(request.quantity());
+        // status intentionally not changed here
+
+        return toResponse(deliveryRepository.save(delivery));
+    }
+
+    @Override
+    @Transactional
+    public DeliveryResponse updateDeliveryStatus(String deliveryId, String status) {
+        ApplicationLogger.log.info("Updating delivery status: {} -> {}", deliveryId, status);
+
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Delivery not found: " + deliveryId));
+
+        delivery.setStatus(status);
+        return toResponse(deliveryRepository.save(delivery));
+    }
+
+    @Override
+    @Transactional
+    public void deleteDelivery(String deliveryId) {
+
+        ApplicationLogger.log.info("Deleting delivery {}", deliveryId);
+
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Delivery not found: " + deliveryId));
+
+        deliveryRepository.delete(delivery);
     }
 
     private DeliveryResponse toResponse(Delivery delivery) {

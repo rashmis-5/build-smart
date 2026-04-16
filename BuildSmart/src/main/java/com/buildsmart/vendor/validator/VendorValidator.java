@@ -10,9 +10,9 @@ public class VendorValidator {
         if (request.name() == null || request.name().trim().isEmpty()) {
             throw new IllegalArgumentException("Vendor name cannot be empty");
         }
-
-        if (request.status() == null || request.status().trim().isEmpty()) {
+        if(request.status() == null || request.status().trim().isEmpty()) {
             throw new IllegalArgumentException("Vendor status cannot be empty");
         }
+
     }
 }

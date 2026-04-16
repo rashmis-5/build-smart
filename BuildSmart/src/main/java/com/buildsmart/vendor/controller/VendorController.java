@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/vendors")
 @RequiredArgsConstructor
 @Tag(name = "Vendor APIs", description = "Vendor management endpoints")
-@PreAuthorize("hasAnyRole('ADMIN','PROCUREMENT_OFFICER')")
+@PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
 public class VendorController {
 
     private final VendorService vendorService;
@@ -29,17 +29,56 @@ public class VendorController {
     @ApiResponse(responseCode = "201", description = "Vendor created")
     public ResponseEntity<VendorResponse> createVendor(
             @Valid @RequestBody VendorRequest request) {
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(vendorService.createVendor(request));
     }
 
     @GetMapping
-    @Operation(summary = "Get vendors by status")
+    @Operation(summary = "Get all vendors")
     @ApiResponse(responseCode = "200", description = "Vendors fetched")
-    public ResponseEntity<List<VendorResponse>> getVendorsByStatus(
-            @RequestParam String status) {
+    public ResponseEntity<List<VendorResponse>> getAllVendors() {
+        return ResponseEntity.ok(vendorService.getAllVendors());
+    }
+
+    @GetMapping("/{vendorId}")
+    @Operation(summary = "Get vendor by ID")
+    @ApiResponse(responseCode = "200", description = "Vendor fetched")
+    public ResponseEntity<VendorResponse> getVendorById(
+            @PathVariable String vendorId) {
+
+        return ResponseEntity.ok(vendorService.getVendorById(vendorId));
+    }
+
+
+    @PutMapping("/{vendorId}")
+    @Operation(summary = "Update vendor")
+    @ApiResponse(responseCode = "200", description = "Vendor updated")
+    public ResponseEntity<VendorResponse> updateVendor(
+            @RequestParam String vendorId,
+            @Valid @RequestBody VendorRequest request) {
+
         return ResponseEntity
-                .ok(vendorService.getVendorsByStatus(status));
+                .ok(vendorService.updateVendor(vendorId, request));
+    }
+
+    @PatchMapping("/{vendorId}/status")
+    @Operation(summary = "Update vendor status")
+    @ApiResponse(responseCode = "200", description = "Vendor status updated")
+    public ResponseEntity<VendorResponse> updateVendorStatus(
+            @PathVariable String vendorId,
+            @RequestParam String status) {
+        return ResponseEntity.ok(vendorService.updateVendorStatus(vendorId, status));
+    }
+
+    @DeleteMapping("/{vendorId}")
+    @Operation(summary = "Delete vendor by id")
+    @ApiResponse(responseCode = "200", description = "Vendor deleted")
+    public ResponseEntity<List<VendorResponse>> deleteVendorsById(
+            @RequestParam String vendorId) {
+
+        return ResponseEntity
+                .ok(vendorService.deleteVendorsById(vendorId));
     }
 }
